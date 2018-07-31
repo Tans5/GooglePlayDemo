@@ -19,6 +19,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.analytics.FirebaseAnalytics
 import java.security.Permission
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback{
@@ -99,16 +100,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback{
         if(isPermissionAllow) {
             val lastLocation = fusedLocationProviderClient.lastLocation
             lastLocation.addOnCompleteListener { lastLocation ->
-                val result = lastLocation.result
-                val cameraUpdate = CameraUpdateFactory.newCameraPosition(
-                        CameraPosition.builder()
-                                .zoom(12f)
-                                .target(LatLng(result.latitude, result.longitude))
-                                .build()
-                )
-                googleMap.uiSettings.isMyLocationButtonEnabled = true
-                googleMap.isMyLocationEnabled = true
-                googleMap.animateCamera(cameraUpdate)
+                if(lastLocation.isSuccessful) {
+                    val result = lastLocation.result
+                    val cameraUpdate = CameraUpdateFactory.newCameraPosition(
+                            CameraPosition.builder()
+                                    .zoom(12f)
+                                    .target(LatLng(result.latitude, result.longitude))
+                                    .build()
+                    )
+                    val eventParams = Bundle()
+                    eventParams.putString("user_location", "lat:${result.latitude},long:${result.longitude}")
+                    val firebaseAnalytics = (application as AppApplication).getFireBaseAnalytics()
+                    firebaseAnalytics.logEvent("location", eventParams)
+                    googleMap.uiSettings.isMyLocationButtonEnabled = true
+                    googleMap.isMyLocationEnabled = true
+                    googleMap.animateCamera(cameraUpdate)
+                }
             }
         }
     }

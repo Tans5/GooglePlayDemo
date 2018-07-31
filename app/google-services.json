@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1092804463958",
+    "firebase_url": "https://aesthetic-hub-211800.firebaseio.com",
+    "project_id": "aesthetic-hub-211800",
+    "storage_bucket": "aesthetic-hub-211800.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092804463958:android:ca93767460868747",
+        "android_client_info": {
+          "package_name": "com.example.tans.googleplaydemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092804463958-4l1hqgcl93jqrbdd3uupmfd4l4t918uu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5fAq8Rbrg46tYjdjzrb7ovw7yUl9YzhQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
