@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_get_places"
+        android:title="Get places"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/menu_get_places_with_rx"
+        android:title="Get places with rx"
+        app:showAsAction="never"
+        />
+</menu>
