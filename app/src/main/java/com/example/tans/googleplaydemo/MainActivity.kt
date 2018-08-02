@@ -1,6 +1,7 @@
 package com.example.tans.googleplaydemo
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -10,8 +11,11 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -22,6 +26,8 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -32,7 +38,7 @@ import org.reactivestreams.Subscription
 import java.util.function.Consumer
 import kotlin.collections.ArrayList
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var mapView: MapView
     private lateinit var googleMap: GoogleMap
@@ -74,11 +80,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(p0: GoogleMap?) {
         googleMap = p0!!
-
+        googleMap.setOnMarkerClickListener(this)
+        googleMap.setInfoWindowAdapter(MapInfoAdapter(placeLike, this))
         requestPermission()
 
         updateCurrentPosition()
 
+    }
+
+    override fun onMarkerClick(p0: Marker?): Boolean {
+        if(p0 != null) {
+            if (!p0.isInfoWindowShown) {
+                p0.showInfoWindow()
+            } else {
+                p0.hideInfoWindow()
+            }
+        }
+        return true
     }
 
 //    private fun initGoogleClient() {
@@ -179,49 +197,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             placeLike.clear()
                             for( a in it.result) {
                                 placeLike.add(a.let {
-                                    Place(it.place.name.toString())
+                                    Place(name = it.place.name.toString(),
+                                            address = it.place.address.toString(),
+                                            attribution = it.place.attributions.toString(),
+                                            position =  it.place.latLng)
                                 })
                             }
                             showLikePlacesDialog()
-                        } else {
-
                         }
                         it.result.release()
                     }
         }
     }
 
-    private fun flowableTest() {
-        Flowable.create<Int>(FlowableOnSubscribe<Int> {
-            for(i in 1 .. 10) {
-                it.onNext(i)
-//                Thread.sleep(1000)
-            }
-            it.onComplete()
-        }, BackpressureStrategy.ERROR)
-//        Flowable.fromIterable(arrayListOf(1,2,3,4,5,6))
-                .compose(rxTransformerThread(128))
-                .subscribe(object: DisposableSubscriber<Int>() {
-                    override fun onComplete() {
-                        Log.i(MainActivity::class.java.simpleName, "completed-------------------------------------")
-                    }
 
-                    override fun onStart() {
-                        request(5)
-                        Log.i(MainActivity::class.java.simpleName, "subscribed-------------------------------------")
-                    }
-
-                    override fun onNext(t: Int?) {
-                        Log.i(MainActivity::class.java.simpleName, "onNext: ${t.toString()}")
-                        cancel()
-                    }
-
-                    override fun onError(t: Throwable?) {
-                        Log.i(MainActivity::class.java.simpleName, "!!!!!!!!!!!!!! onError: ${t.toString()}")
-                    }
-
-                })
-    }
 
     @SuppressLint("MissingPermission")
     private fun requestCurrentPlaceDetection() {
@@ -233,7 +222,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                                 if (it.isSuccessful) {
                                     it.result.forEach {
                                         emitter.onNext(it.let {
-                                            Place(it.place.name.toString())
+                                            Place(name = it.place.name.toString(),
+                                                    address = it.place.address.toString(),
+                                                    attribution = it.place.attributions.toString(),
+                                                    position = it.place.latLng)
                                         })
                                     }
                                     emitter.onComplete()
@@ -285,14 +277,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                                 if (it.isSuccessful) {
                                     it.result.forEach {
                                         emitter.onNext(it.let {
-                                            Place(it.place.name.toString())
+                                            Place(name = it.place.name.toString(),
+                                                    address = it.place.address.toString(),
+                                                    attribution = it.place.attributions.toString(),
+                                                    position = it.place.latLng)
                                         })
                                     }
                                     emitter.onComplete()
                                 } else {
                                     emitter.onComplete()
                                 }
-                                //it.result.release()
+                                it.result.release()
                             }
                 }
             } else {
@@ -321,7 +316,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 })
     }
 
-    private fun <T> rxTransformerThread(bufferSize: Int): FlowableTransformer<T, T> = FlowableTransformer {
+    private fun <T> rxTransformerThread(bufferSize: Int = 128): FlowableTransformer<T, T> = FlowableTransformer {
         it.subscribeOn(Schedulers.io(), true)
                 .observeOn(AndroidSchedulers.mainThread(), false, bufferSize)
     }
@@ -379,9 +374,67 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }.show()
     }
 
+    private fun flowableTest() {
+        Flowable.create<Int>(FlowableOnSubscribe<Int> {
+            for(i in 1 .. 10) {
+                it.onNext(i)
+//                Thread.sleep(1000)
+            }
+            it.onComplete()
+        }, BackpressureStrategy.ERROR)
+//        Flowable.fromIterable(arrayListOf(1,2,3,4,5,6))
+                .compose(rxTransformerThread())
+                .subscribe(object: DisposableSubscriber<Int>() {
+                    override fun onComplete() {
+                        Log.i(MainActivity::class.java.simpleName, "completed-------------------------------------")
+                    }
+
+                    override fun onStart() {
+                        request(5)
+                        Log.i(MainActivity::class.java.simpleName, "subscribed-------------------------------------")
+                    }
+
+                    override fun onNext(t: Int?) {
+                        Log.i(MainActivity::class.java.simpleName, "onNext: ${t.toString()}")
+                        cancel()
+                    }
+
+                    override fun onError(t: Throwable?) {
+                        Log.i(MainActivity::class.java.simpleName, "!!!!!!!!!!!!!! onError: ${t.toString()}")
+                    }
+
+                })
+    }
+
+    private fun addMark(place: Place) {
+        googleMap.addMarker(MarkerOptions().let {
+            it.title(place.name)
+            it.position(place.position)
+            it
+        })
+    }
+
     companion object {
         const val MAX_PLACES_SIZE = 5
-        data class Place (val name: String = "")
+        data class Place (val name: String = "",
+                          val address: String = "",
+                          val attribution: String = "",
+                          val position: LatLng)
+
+        class MapInfoAdapter(val data: List<Place>, context: Context) : GoogleMap.InfoWindowAdapter {
+
+            private var itemView: View = LayoutInflater.from(context).inflate(R.layout.map_info_window_layout, null, false)
+
+            override fun getInfoContents(p0: Marker?): View? = null
+
+            override fun getInfoWindow(p0: Marker?): View {
+                val itemData = data.find { p0!!.title == it.name }
+                itemView.findViewById<TextView>(R.id.info_window_attributes).text = itemData?.attribution ?: ""
+                itemView.findViewById<TextView>(R.id.info_window_address).text = itemData?.address ?: ""
+                return itemView
+            }
+
+        }
     }
 
 }
