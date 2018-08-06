@@ -2,10 +2,12 @@ package com.example.tans.googleplaydemo
 
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import com.google.android.gms.analytics.GoogleAnalytics
 import com.google.android.gms.analytics.HitBuilders
 import com.google.android.gms.analytics.Tracker
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.iid.FirebaseInstanceId
 
 class AppApplication : Application() {
 

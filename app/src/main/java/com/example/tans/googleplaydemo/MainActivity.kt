@@ -28,6 +28,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -182,6 +184,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
             R.id.menu_get_places_with_rx -> {
                 requestCurrentPlaceDetection()
+                true
+            }
+            R.id.menu_subscribe_news_message -> {
+                changeNewsMessageSubscriptionState()
                 true
             }
             else -> false
@@ -373,7 +379,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     dialog.dismiss()
                 }.show()
     }
-
     private fun flowableTest() {
         Flowable.create<Int>(FlowableOnSubscribe<Int> {
             for(i in 1 .. 10) {
@@ -412,6 +417,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             it.position(place.position)
             it
         })
+    }
+    private fun changeNewsMessageSubscriptionState() {
+        FirebaseMessaging.getInstance().subscribeToTopic("news").addOnCompleteListener {
+            if(it.isSuccessful) {
+                Log.i(this::class.java.simpleName, "add topic news success")
+            }
+        }
     }
 
     companion object {

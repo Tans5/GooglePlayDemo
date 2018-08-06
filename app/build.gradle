@@ -36,6 +36,8 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-analytics:$firebaseVersion"
     implementation "com.google.firebase:firebase-core:$firebaseVersion"
+    implementation "com.google.firebase:firebase-messaging:17.1.0"
+    implementation "com.google.firebase:firebase-iid:16.2.0"
 
     implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: "$rxVersion"
     implementation group: 'io.reactivex.rxjava2', name: 'rxandroid', version: "$rxAndroidVersion"

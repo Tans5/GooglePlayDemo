@@ -11,4 +11,9 @@
         android:title="Get places with rx"
         app:showAsAction="never"
         />
+    <item
+        android:id="@+id/menu_subscribe_news_message"
+        android:title="Subscribe news Msg"
+        app:showAsAction="never"
+        />
 </menu>
