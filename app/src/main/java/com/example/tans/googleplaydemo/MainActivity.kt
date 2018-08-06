@@ -22,6 +22,8 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -164,6 +166,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             R.id.menu_get_places_with_rx -> {
                 requestCurrentPlaceDetection()
+                true
+            }
+            R.id.menu_subscribe_news_message -> {
+                changeNewsMessageSubscriptionState()
                 true
             }
             else -> false
@@ -377,6 +383,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }.toTypedArray()) { dialog, which ->
                     dialog.dismiss()
                 }.show()
+    }
+
+    private fun changeNewsMessageSubscriptionState() {
+        FirebaseMessaging.getInstance().subscribeToTopic("news").addOnCompleteListener {
+            if(it.isSuccessful) {
+                Log.i(this::class.java.simpleName, "add topic news success")
+            }
+        }
     }
 
     companion object {

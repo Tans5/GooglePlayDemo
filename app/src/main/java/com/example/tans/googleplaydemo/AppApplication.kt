@@ -18,7 +18,6 @@ class AppApplication : Application() {
         super.onCreate()
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
         mGoogleAnalytics = GoogleAnalytics.getInstance(this)
-        Log.i(AppApplication::class.java.simpleName,  "Firebase messaging Token: ${FirebaseInstanceId.getInstance().token}")
     }
 
     fun getFireBaseAnalytics() : FirebaseAnalytics = mFirebaseAnalytics

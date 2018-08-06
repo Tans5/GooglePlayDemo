@@ -5,7 +5,7 @@ buildscript {
 
     ext.googlePlayVersion = '15.0.1'
 
-    ext.firebaseVersion = '15.0.2'
+    ext.firebaseVersion = '16.0.1'
 
     ext.rxVersion = '2.1.17'
 

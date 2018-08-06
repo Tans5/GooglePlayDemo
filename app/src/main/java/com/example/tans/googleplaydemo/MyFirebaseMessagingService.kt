@@ -9,5 +9,4 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(p0: RemoteMessage?) {
         Log.i(this::class.java.simpleName, "Message from firebase cloud messaging: ${p0?.notification?.body ?: "null body"}")
     }
-
 }
